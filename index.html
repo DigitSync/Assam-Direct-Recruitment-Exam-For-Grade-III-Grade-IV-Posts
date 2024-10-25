@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assam Recruitment Exam Practice - DigitSync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .question, .timer, .score, .rules, .progress {
+            margin-bottom: 20px;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .options li::before {
+            content: attr(data-label);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        button {
+            width: 60%;
+            padding: 10px;
+            margin: 5px;
+            background-color: #6c7ae0;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #5a6bcb;
+        }
+        .info {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .whatsapp-button {
+            background-color: #25D366;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1em;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .whatsapp-button:hover {
+            background-color: #1DA851;
+        }
+        .certificate {
+            display: none;
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container registration-container" id="registrationContainer">
+    <h1>Assam Exam Practice</h1>
+    <p class="info">
+        Prepare for the Assam Direct Recruitment Exam with practice tests designed for:
+        <ul>
+            <li>12th Pass: 150 questions, 180 minutes.</li>
+            <li>10th Pass: 135 questions, 110 minutes.</li>
+        </ul>
+        Enhance your knowledge and skills!
+    </p>
+    <input type="text" id="name" placeholder="Enter your name" required><br><br>
+    <select id="education">
+        <option value="12th Pass">12th Pass</option>
+        <option value="10th Pass">10th Pass</option>
+    </select><br><br>
+    <button onclick="register()">Register</button>
+    <button class="whatsapp-button" onclick="window.open('https://whatsapp.com/channel/0029Va92tOU6hENt5Q7Cya2a', '_blank')">Join WhatsApp Channel</button>
+</div>
+
+<div class="container quiz-container" id="quizContainer" style="display:none;">
+    <h2 id="welcomeMessage"></h2>
+    <div class="timer" id="timer">Time: 00:00</div>
+    <div class="rules">Answer each question correctly to gain points. Negative marking for incorrect answers.</div>
+    <div class="question" id="question">Loading...</div>
+    <ul class="options" id="options"></ul>
+    <div class="score" id="score">Score: 0</div>
+    <div class="progress" id="progress">Answered: 0 / 0</div>
+</div>
+
+<div class="container certificate" id="resultContainer">
+    <h1>Exam Results</h1>
+    <p id="resultSummary">Calculating...</p>
+    <button onclick="printCertificate()">Print Certificate</button>
+</div>
+
+<script>
+    const questions = [
+        { question: "What is the capital of Assam?", options: ["Guwahati", "Dispur", "Tezpur", "Jorhat"], answer: 1 },
+        { question: "Who was the first Ahom king of Assam?", options: ["Sukaphaa", "Rudra Singha", "Gadadhar Singha", "Pratap Singha"], answer: 0 },
+        { question: "Find the synonym of 'Abundant'.", options: ["Scarce", "Plentiful", "Rare", "Limited"], answer: 1 },
+        { question: "What is the square root of 144?", options: ["10", "12", "14", "16"], answer: 1 },
+        { question: "Who was known as the 'Lion of Mysore'?", options: ["Adil Shah", "Hyder Ali", "Krishnaraja Wodeyar", "Tipu Sultan"], answer: 3 },
+{ question: "The ruins of Angkor Wat are in which country?", options: ["New Zealand", "Indonesia", "Vietnam", "Cambodia"], answer: 3 },
+{ question: "If REAR = 42, TEAR = 44 and DEAR = 28, then which set is incorrectly paired?", options: ["PEAR = 40", "FEAR = 32", "BEAR = 26", "GEAR = 31"], answer: 3 },
+{ question: "Which option is similar to Pencil : Student : School?", options: ["Mouse : Eat : Biscuit", "Computer : Officer : Bank", "Pen : Writer : Book", "Cash : Shopkeeper : Goods"], answer: 2 },
+{ question: "Which of the following countries does Assam share international borders with?", options: ["Bhutan and China", "China and Bangladesh", "Bangladesh and Bhutan", "Myanmar and Bangladesh"], answer: 3 },
+{ question: "In Roman numerals, XCI represents which decimal number?", options: ["41", "21", "91", "111"], answer: 2 },
+{ question: "Which word of the following is an example of pronoun?", options: ["Again", "Pink", "They", "Speed"], answer: 2 },
+{ question: "Give one-word substitution for 'life history of a person written by another person'.", options: ["Autobiography", "Biography", "Monograph", "Bigamy"], answer: 1 },
+{ question: "Which word of the following is an example of pronoun?", options: ["Again", "Pink", "They", "Speed"], answer: 2 },
+{ question: "What would be the antonym of ‘friend’?", options: ["Foe", "Unfriend", "Dislike", "Buddy"], answer: 0 },
+{ question: "Identify the synonym of ‘lament’.", options: ["Sad", "Mourn", "Copied", "Molecule"], answer: 1 },
+{ question: "Which word is incorrectly spelt?", options: ["Basically", "Essentially", "Primarily", "Varbally"], answer: 3 },
+{ question: "Give one-word substitution for 'life history of a person written by another person'.", options: ["Autobiography", "Biography", "Monograph", "Bigamy"], answer: 1 },
+{ question: "What does ‘in a nutshell’ mean?", options: ["Peanuts and almonds", "Very tough explanation", "Expressed in short", "Important discussion"], answer: 2 },
+{ question: "Tuhin ran _____ than Zubin to win the race.", options: ["fast", "faster", "fastest", "fasting"], answer: 1 },
+{ question: "Identify the collective noun for ‘dogs’.", options: ["Gang", "Herd", "Team", "Pack"], answer: 3 },
+{ question: "Which punctuation mark is called ‘hyphen’?", options: ["-", "/", "'", ":"], answer: 0 },
+{ question: "What is the opposite of ‘sorrow’?", options: ["Joy", "Happy", "Laugh", "Beauty"], answer: 0 },
+        { question: "If A is coded as 1, B as 2, C as 3, then the code for CAT is:", options: ["3 1 20", "3 1 2", "3 1 19", "2 1 3"], answer: 0 },
+        { question: "What was the last capital of Ahom Kingdom?", options: ["Charaideo", "Jorhat", "Rangpur", "Garhgaon"], answer: 0 },
+    { question: "What was the name of Srimanta Sankardeva's grandmother?", options: ["Aidew Aita", "Jakoimoti", "Kherxuti", "Soirindhri"], answer: 0 },
+    { question: "Who was known as the 'Lion of Mysore'?", options: ["Adil Shah", "Hyder Ali", "Krishnaraja Wodeyar", "Tipu Sultan"], answer: 3 },
+    { question: "Which State of India has Jallianwala Bagh?", options: ["Punjab", "Haryana", "Rajasthan", "Uttar Pradesh"], answer: 0 },
+    { question: "Which of the following countries was a part of the Axis Group during the World War II?", options: ["England", "Japan", "France", "Soviet Union"], answer: 1 },
+    { question: "The ruins of Angkor Wat are in which country?", options: ["New Zealand", "Indonesia", "Vietnam", "Cambodia"], answer: 3 },
+    { question: "Which of the following countries does Assam share international borders with?", options: ["Bhutan and China", "China and Bangladesh", "Bangladesh and Bhutan", "Myanmar and Bangladesh"], answer: 2 },
+    { question: "If an airplane is flying directly from Chennai towards Guwahati, in which direction is it flying?", options: ["From South to East", "From East to West", "From West to East", "From North to East"], answer: 0 },
+    { question: "What is the Westernmost State of India?", options: ["Rajasthan", "Punjab", "Maharashtra", "Gujarat"], answer: 0 },
+    { question: "Which of the following peaks does not belong to the Himalayas?", options: ["Annapurna", "Kangto", "Anamudi", "Kamet"], answer: 2 },
+    { question: "The Great Barrier Reef is located in the seas near which continent?", options: ["North America", "Australia", "Africa", "Europe"], answer: 1 },
+    { question: "Which of the following is a mountain range of South America?", options: ["Andes", "Karakoram", "Alps", "Caucasus"], answer: 0 },
+    { question: "The giant waves caused by volcanic eruptions or earthquakes under the sea are known as", options: ["tsunami", "cyclone", "blizzard", "landslide"], answer: 0 },
+    { question: "Who is the Chairman of the Rajya Sabha?", options: ["The Prime Minister", "The Vice President", "The Speaker of the Lok Sabha", "The President"], answer: 1 },
+    { question: "Who administers the Oath of Office to the President of India?", options: ["The Prime Minister", "The Chief Justice of the Delhi High Court", "The Chief Justice of the Supreme Court", "The Speaker of the Lok Sabha"], answer: 2 },
+    { question: "Which of the following musical instruments of Assam is usually made of bamboo?", options: ["Doba", "Mridanga", "Dotara", "Toka"], answer: 2 },
+    { question: "Where is the Tocklai Tea Research Centre located?", options: ["Jorhat", "Lakhimpur", "Tinsukia", "Dhemaji"], answer: 0 },
+    { question: "The Gita Press, a unit of Govind Bhawan Karyalaya, is located in which State?", options: ["Uttarakhand", "Himachal Pradesh", "Maharashtra", "Uttar Pradesh"], answer: 3 },
+    { question: "An hour during a day's session when questions/issues may be raised without prior notice in the Indian Parliament is called", options: ["Freedom Hour", "Lunch Hour", "Zero Hour", "Party Hour"], answer: 2 },
+    { question: "Who is the Chairman of NITI Aayog?", options: ["The Finance Minister", "The Prime Minister", "The Governor of the Reserve Bank of India", "The Vice President"], answer: 1 },
+    { question: "The Numaligarh Refinery is in which district of Assam?", options: ["Sivasagar", "Jorhat", "Golaghat", "Dibrugarh"], answer: 2 },
+    { question: "The international festival 'Kullu Dussehra' is celebrated in which State?", options: ["Himachal Pradesh", "Uttarakhand", "Uttar Pradesh", "Haryana"], answer: 0 },
+    { question: "The Bering Strait separates which two landmasses?", options: ["Australia and New Zealand", "The USA and Russia", "South Africa and Madagascar", "Japan and China"], answer: 1 },
+    { question: "Who wrote the lyrics of 'Alakananda', sung by Shankuraj Konwar?", options: ["Tonmoy Krypton", "Sannidhya Bhuyan", "Joi Barua", "Maitrayee Patar"], answer: 2 },
+    { question: "The real name of crime thriller writer Ranju Hazarika is", options: ["Satyanath Bora", "Pabitra Kumar Deka", "Hiren Gohain", "Kumud Chandra Hazarika"], answer: 0 },
+    { question: "Who wrote the children's book Xanta-Xista Hrista-Pusta Mahadusto?", options: ["Nabakanta Barua", "Hiren Bhattacharyya", "Bhabendra Nath Saikia", "Arup Kumar Dutta"], answer: 0 },
+    { question: "Kanchipuram Saree is produced in which State?", options: ["Kerala", "Tamil Nadu", "Karnataka", "Telangana"], answer: 1 },
+    { question: "Which of the following was a famous painter?", options: ["Vincent van Gogh", "John Lennon", "Bob Marley", "Marlon Brando"], answer: 0 },
+    { question: "In which sport do Tania Choudhury and Nayanmoni Saikia from Assam represent India?", options: ["Lawn Bowls", "Badminton", "Carrom", "Judo"], answer: 0 },
+    { question: "Identify the Badminton player.", options: ["Dipa Karmakar", "Pullela Gopichand", "Sania Mirza", "Leander Paes"], answer: 1 },
+    { question: "In which sport did India not win a medal at 2020 Tokyo Olympics?", options: ["Boxing", "Weightlifting", "Taekwondo", "Wrestling"], answer: 2 },
+    { question: "The Diamond League is an annual series of competitions in which area?", options: ["Swimming", "Badminton", "Gymnastics", "Track and Field Events"], answer: 3 },
+    { question: "Identify the incorrectly matched pair.", options: ["Stefan Edberg : Cricket", "Björn Borg : Lawn Tennis", "Tiger Woods : Golf", "Cristiano Ronaldo : Football"], answer: 0 },
+    { question: "Where is the National War Memorial located?", options: ["Srinagar", "New Delhi", "Tawang", "Amritsar"], answer: 1 },
+    { question: "Which of the following is the Mission Basundhara of the Government of Assam related to?", options: ["Fishery and livelihood", "Women empowerment", "Land records and land revenues", "Digital education"], answer: 2 },
+    { question: "Which of the following organizations is not in the business of commercial vehicles?", options: ["Larsen & Toubro", "Mahindra & Mahindra", "Force Motors", "Tata Motors"], answer: 0 },
+    { question: "If the pH of a liquid is 5·0, then the liquid is", options: ["alkaline in nature", "neutral in nature", "liquid metal", "acidic in nature"], answer: 3 },
+    { question: "Who is the Vice President of India, as on 1st of January, 2024?", options: ["Gulab Chand Kataria", "Ram Nath Kovind", "Jagdeep Dhankhar", "Rajnath Singh"], answer: 2 },
+    { question: "Which of the following countries does not have a seashore?", options: ["China", "Afghanistan", "Myanmar", "Iran"], answer: 1 },
+    { question: "The world's largest island Greenland is a part of which of the following countries?", options: ["Denmark", "Sweden", "Canada", "Iceland"], answer: 0 },
+    { question: "Which of the following is considered as the earliest compilation?", options: ["Yajurveda", "Atharvaveda", "Rigveda", "Samaveda"], answer: 2 },
+    { question: "Which of the following places was a part of the Indus Valley Civilization?", options: ["Machilipatnam", "Babylon", "Mohenjo-daro", "Byzantine"], answer: 2 },
+    { question: "Who among the following was involved in the Battle of Waterloo?", options: ["Napoleon Bonaparte", "Czar Nicholas", "Adolf Hitler", "George Washington"], answer: 0 },
+    { question: "Bhairabkunda is a trijunction of which of the following?", options: ["Assam, Bhutan, China", "Assam, Bhutan, Arunachal Pradesh", "Assam, Bhutan, Sikkim", "Assam, Sikkim, Arunachal Pradesh"], answer: 1 },
+    { question: "Which of the following is generally salty in taste?", options: ["Snowflake", "Rainwater", "Flowing river water", "Seawater"], answer: 3 },
+    { question: "Which of the following mountain ranges is in North-East India?", options: ["Barail Range", "Shivalik Range", "Satpura Range", "Aravalli Range"], answer: 0 },
+    { question: "Which of the following statements is incorrect?", options: ["Lakshadweep is a Union Territory of India.", "Maldives is a Union Territory of India.", "Andaman and Nicobar Islands is a Union Territory of India.", "Puducherry is a Union Territory of India."], answer: 1 },
+    { question: "The Equator, the Tropic of Capricorn and the Tropic of Cancer pass through which continent?", options: ["Asia", "Australia", "South America", "Africa"], answer: 3 },
+    { question: "Which of the following is an island State of the United States of America?", options: ["Madagascar", "Canary Islands", "Hawaii", "Greenland"], answer: 2 },
+    { question: "Sudden burst into the open of hot water and vapour from deep underground is termed as", options: ["geyser", "volcano", "tornado", "tsunami"], answer: 0 },
+    { question: "Which of the following is not a component of the Constitution of India?", options: ["The Directive Principles of State Policy", "The Directive Rights of the Centre", "The Fundamental Rights", "The Fundamental Duties"], answer: 1 },
+    { question: "A continuous rise in the price level is called", options: ["stagflation", "deflation", "hyperinflation", "inflation"], answer: 3 },
+    { question: "What does DAY stand for in the National Rural Livelihoods Mission (DAY-NRLM)?", options: ["District Availability Yojana", "Deendayal Antyodaya Yojana", "Deendayal Ayurvedic Yojana", "District Achievement Yojana"], answer: 1 },
+    { question: "Which of the following novels was written by Padma Shri Rongbong Terang?", options: ["Mrityunjay", "Oximot Jar Heral Xeema", "Rongmilir Hanhi", "Miri Jiyori"], answer: 2 },
+    { question: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Lisbon"], answer: 2 },
+    { question: "Which element has the chemical symbol O?", options: ["Gold", "Oxygen", "Silver", "Hydrogen"], answer: 1 },
+    { question: "What is the largest planet in our solar system?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: 2 },
+    { question: "How many continents are there?", options: ["5", "6", "7", "8"], answer: 2 },
+    { question: "What is the boiling point of water?", options: ["100°C", "0°C", "50°C", "25°C"], answer: 0 },
+    { question: "Which planet is known as the Red Planet?", options: ["Earth", "Venus", "Mars", "Jupiter"], answer: 2 },
+    { question: "Who wrote 'Romeo and Juliet'?", options: ["Charles Dickens", "Mark Twain", "William Shakespeare", "Jane Austen"], answer: 2 },
+    { question: "What is the powerhouse of the cell?", options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi apparatus"], answer: 1 },
+    { question: "Which gas is most abundant in the Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 2 },
+    { question: "What is the largest mammal in the world?", options: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"], answer: 1 },
+    { question: "What is the currency of Japan?", options: ["Yen", "Won", "Dollar", "Rupee"], answer: 0 },
+    { question: "Which is the longest river in the world?", options: ["Amazon", "Nile", "Yangtze", "Mississippi"], answer: 1 },
+    { question: "How many bones are there in an adult human body?", options: ["206", "205", "210", "215"], answer: 0 },
+    { question: "What is the capital of Australia?", options: ["Sydney", "Canberra", "Melbourne", "Brisbane"], answer: 1 },
+    { question: "Which is the smallest continent by land area?", options: ["Asia", "Australia", "Europe", "Antarctica"], answer: 1 },
+    { question: "In which year did the Titanic sink?", options: ["1910", "1912", "1914", "1916"], answer: 1 },
+    { question: "What is the main language spoken in Brazil?", options: ["Spanish", "Portuguese", "English", "French"], answer: 1 },
+    { question: "Which planet is known for its rings?", options: ["Mars", "Earth", "Saturn", "Jupiter"], answer: 2 },
+    { question: "What is the capital of Canada?", options: ["Toronto", "Vancouver", "Ottawa", "Montreal"], answer: 2 },
+    { question: "Who painted the Mona Lisa?", options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Claude Monet"], answer: 2 },
+    { question: "Which animal is known as the King of the Jungle?", options: ["Tiger", "Elephant", "Lion", "Cheetah"], answer: 2 },
+    { question: "What is the largest ocean on Earth?", options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"], answer: 3 },
+    { question: "What is the chemical formula for table salt?", options: ["NaCl", "KCl", "CaCl2", "MgCl2"], answer: 0 },
+    { question: "Which organ is responsible for pumping blood in the human body?", options: ["Lungs", "Heart", "Liver", "Kidneys"], answer: 1 },
+    { question: "In which year did World War II end?", options: ["1942", "1944", "1945", "1946"], answer: 2 },
+    { question: "Who discovered penicillin?", options: ["Marie Curie", "Alexander Fleming", "Louis Pasteur", "Isaac Newton"], answer: 1 },
+    { question: "What is the capital of India?", options: ["Mumbai", "Delhi", "Kolkata", "Chennai"], answer: 1 },
+    { question: "Which is the hardest natural substance on Earth?", options: ["Gold", "Iron", "Diamond", "Quartz"], answer: 2 },
+    { question: "What is the main ingredient in guacamole?", options: ["Avocado", "Tomato", "Onion", "Pepper"], answer: 0 },
+    { question: "Which country is known as the Land of the Rising Sun?", options: ["China", "Japan", "Thailand", "India"], answer: 1 },
+    { question: "What is the capital of Italy?", options: ["Rome", "Milan", "Venice", "Florence"], answer: 0 },
+    { question: "Which gas do plants absorb from the atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 1 },
+    { question: "What is the largest desert in the world?", options: ["Sahara", "Arabian", "Gobi", "Kalahari"], answer: 0 },
+    { question: "Which is the fastest land animal?", options: ["Cheetah", "Lion", "Tiger", "Gazelle"], answer: 0 },
+    { question: "What is the capital of Germany?", options: ["Berlin", "Munich", "Frankfurt", "Hamburg"], answer: 0 },
+    { question: "Which planet is closest to the Sun?", options: ["Venus", "Earth", "Mercury", "Mars"], answer: 2 },
+    { question: "What is the chemical symbol for gold?", options: ["Au", "Ag", "Fe", "Pb"], answer: 0 },
+    { question: "What is the currency of the United Kingdom?", options: ["Dollar", "Euro", "Pound", "Yen"], answer: 2 },
+    { question: "Which organ in the human body is responsible for detoxification?", options: ["Heart", "Liver", "Kidneys", "Lungs"], answer: 1 },
+    { question: "What is the capital of China?", options: ["Beijing", "Shanghai", "Hong Kong", "Guangzhou"], answer: 0 },
+    { question: "Which is the largest country by land area?", options: ["USA", "China", "Russia", "Canada"], answer: 2 },
+    { question: "What is the hardest rock?", options: ["Granite", "Marble", "Diamond", "Basalt"], answer: 2 },
+    { question: "Which planet is known as the Earth's twin?", options: ["Mars", "Venus", "Jupiter", "Saturn"], answer: 1 },
+    { question: "আহোম ৰাজ্যৰ শেষ ৰাজধানী কি?", options: ["চাৰাইদেও", "জোৰহাট", "ৰংপুৰ", "গঢ়গাঁও"], answer: 0 },
+    { question: "শ্ৰীমন্ত শঙ্কৰদেৱৰ দেউতাৰ নাম কি?", options: ["আইদেউ আিতা", "জাকৈমতী", "খেৰকুতী", "চৈৰিণ্ড্ৰী"], answer: 0 },
+    { question: "‘মাইছুৰৰ সিংহ’ বুলি কাক জনা যায়?", options: ["আদিল শাহ", "হায়দৰ আলী", "কৃষ্ণৰাজ ৱোদেয়াৰ", "টিপু সুলতান"], answer: 3 },
+    { question: "কোন ৰাজ্যত জালিয়ানৱালা বাগ আছে?", options: ["পঞ্জাব", "হৰিয়াণা", "রাজস্থান", "উত্তৰ প্ৰদেশ"], answer: 0 },
+    { question: "বিশ্বযুদ্ধ II সময়ত কোনখন দেশ অক্ষ গোটৰ অংশ আছিল?", options: ["ইংলেণ্ড", "জাপান", "ফ্ৰান্স", "সোভিয়েট ইউনিয়ন"], answer: 1 },
+    { question: "আঙুৰৰ ৰসৰ পৰা কি তৈয়াৰ হয়?", options: ["মদ", "চহৰ", "ডিজেল", "বাতৰি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "কোনখন নদী অসমৰ সৈতে সীমা ভাগ কৰে?", options: ["ব্ৰহ্মপুত্ৰ", "গঙ্গা", "গমগৰ", "কবিৰ"], answer: 0 },
+    { question: "অসমৰ চৰকাৰী ফুল কোনটো?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "কোনখন মহানায়ক 'মোহনবাগান' ফুটবল ক্লাবৰ সদস্য আছিল?", options: ["বাহাৰ উদ্দিন", "বিৰাট কোহলি", "মহেন্দ্ৰ সিং ধোনী", "ৰোহিত শর্মা"], answer: 0 },
+    { question: "ৰাজ্যসভাৰ অধ্যক্ষ কোন?", options: ["প্ৰধানমন্ত্ৰী", "উপ ৰাষ্ট্ৰপতি", "লোকসভাৰ অধ্যক্ষ", "ৰাষ্ট্ৰপতি"], answer: 1 },
+    { question: "কোনখন উত্তৰ-পূৰ্বাঞ্চলৰ ৰাজ্য?", options: ["পঞ্জাব", "মহারাষ্ট্র", "অসম", "গুজৰাট"], answer: 2 },
+    { question: "অসমত কিমান জিলা আছে?", options: ["23", "26", "30", "32"], answer: 1 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠাতা কোন?", options: ["সুকফা", "রুদ্ৰ সিংহ", "গদাধৰ সিংহ", "প্ৰতাপ সিংহ"], answer: 0 },
+    { question: "কোনখন নদী অসমৰ পৰা ব্ৰহ্মপুত্ৰলৈ গতি কৰে?", options: ["বৰাক", "ডিব্ৰুগড়", "গঙ্গা", "ব্ৰহ্মপুত্ৰ"], answer: 0 },
+    { question: "অসমৰ ৰাষ্ট্ৰীয় উদ্যান কোনটো?", options: ["কাজিৰঙা", "মানস", "নমাৰি", "পবিত্ৰ"], answer: 0 },
+    { question: "অসমৰ চৰকাৰী ভাষা কি?", options: ["অসমীয়া", "হিন্দী", "ইংৰাজী", "বেঙ্গালী"], answer: 0 },
+    { question: "ডিব্ৰুগড়ৰ ৰাজধানী কি?", options: ["গুৱাহাটী", "দিহিঙ", "নলবাৰী", "ৰঙিয়াঁ"], answer: 0 },
+    { question: "শ্ৰীমন্ত শঙ্কৰদেৱৰ জন্ম স্থান কি?", options: ["বৰপেটা", "নলবাৰী", "মৰিগাঁও", "জোৱাই"], answer: 0 },
+    { question: "অসমৰ চৰকাৰী চেনেলৰ নাম কি?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ"], answer: 0 },
+    { question: "অসমৰ ৰাজধানী কি?", options: ["গুৱাহাটী", "নগাঁও", "ডিব্ৰুগড়", "শিৱসাগৰ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ল'ৰা-মাৰা?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "জুঁই"], answer: 0 },
+    { question: "অসমত কিমান বিশ্ববিদ্যালয় আছে?", options: ["12", "15", "18", "20"], answer: 1 },
+    { question: "অসমৰ চাৰা-চাৰা কি?", options: ["শাহি", "বাবা", "চাৰা", "মাৰা"], answer: 0 },
+    { question: "অসমৰ পৰিচয় কিমান?", options: ["একতা", "জাতি", "বৈচিত্ৰ", "সকল"], answer: 2 },
+    { question: "কোনখন অসমত সৰ্বাধিক কলা উৎপাদন কৰে?", options: ["গোলাঘাট", "শিৱসাগৰ", "নলবাৰী", "কচৰ"], answer: 3 },
+    { question: "অসমৰ কোন চাৰা অসমীয়াৰ মাজত জনপ্ৰিয়?", options: ["বাঁহী", "বাঁহী", "মুর্গী", "গৰু"], answer: 0 },
+    { question: "অসমৰ পৰ্যটন কেন্দ্ৰ কোন?", options: ["কাজিৰঙা", "নমৰি", "মাজুলি", "বহাগ"], answer: 0 },
+    { question: "কোনখন অসমৰ নিচেই জনপ্ৰিয় পুৰাণ?", options: ["শ্ৰীমদ্ভাগৱত", "মহাভাৰত", "ৰামায়ণ", "পুৰাণ"], answer: 0 },
+    { question: "অসমৰ কোন চেনেলৰ নাম 'ডিডি অসম'?", options: ["দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ", "কিংবদন্তী"], answer: 0 },
+    { question: "কোনখন অসমৰ ৰাজধানী?", options: ["গুৱাহাটী", "নগাঁও", "ডিব্ৰুগড়", "শিৱসাগৰ"], answer: 0 },
+    { question: "অসমৰ কোন চাৰা সৰ্বাধিক কলা উৎপাদন কৰে?", options: ["গোলাঘাট", "শিৱসাগৰ", "নলবাৰী", "কচৰ"], answer: 3 },
+    { question: "অসমৰ কোন চেনেলৰ নাম 'ডিডি অসম'?", options: ["দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ", "কিংবদন্তী"], answer: 0 },
+    { question: "অসমৰ কোন চাৰা অসমীয়াৰ মাজত জনপ্ৰিয়?", options: ["বাঁহী", "বাঁহী", "মুর্গী", "গৰু"], answer: 0 },
+    { question: "অসমৰ পৰ্যটন কেন্দ্ৰ কোন?", options: ["কাজিৰঙা", "নমৰি", "মাজুলি", "বহাগ"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "কবিৰ", "গঙ্গা"], answer: 0 },
+    { question: "অসমৰ কোন চেনেলৰ নাম 'ডিডি অসম'?", options: ["দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ", "কিংবদন্তী"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "কবিৰ", "গঙ্গা"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ চৰকাৰী ভাষা কি?", options: ["অসমীয়া", "হিন্দী", "ইংৰাজী", "বেঙ্গালী"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠাতা কোন?", options: ["সুকফা", "ৰুদ্ৰ সিংহ", "গদাধৰ সিংহ", "প্ৰতাপ সিংহ"], answer: 0 },
+    { question: "কোনখন নদী অসমৰ পৰা ব্ৰহ্মপুত্ৰলৈ গতি কৰে?", options: ["বৰাক", "ডিব্ৰুগড়", "গঙ্গা", "ব্ৰহ্মপুত্ৰ"], answer: 0 },
+    { question: "অসমৰ ৰাষ্ট্ৰীয় উদ্যান কোনটো?", options: ["কাজিৰঙা", "মানস", "নমাৰি", "পবিত্ৰ"], answer: 0 },
+    { question: "কোনখন নদী অসমৰ সৈতে সীমা ভাগ কৰে?", options: ["ব্ৰহ্মপুত্ৰ", "গঙ্গা", "গমগৰ", "কবিৰ"], answer: 0 },
+    { question: "ডিব্ৰুগড়ৰ ৰাজধানী কি?", options: ["গুৱাহাটী", "দিহিঙ", "নলবাৰী", "ৰঙিয়াঁ"], answer: 0 },
+    { question: "শ্ৰীমন্ত শঙ্কৰদেৱৰ জন্ম স্থান কি?", options: ["বৰপেটা", "নলবাৰী", "মৰিগাঁও", "জোৱাই"], answer: 0 },
+    { question: "অসমৰ চৰকাৰী চেনেলৰ নাম কি?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জী নিউজ"], answer: 0 },
+    { question: "অসমৰ কোন চেনেলৰ নাম 'ডিডি অসম'?", options: ["দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ", "কিংবদন্তী"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "কবিৰ", "গঙ্গা"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ চৰকাৰী ভাষা কি?", options: ["অসমীয়া", "হিন্দী", "ইংৰাজী", "বেঙ্গালী"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠাতা কোন?", options: ["সুকফা", "ৰুদ্ৰ সিংহ", "গদাধৰ সিংহ", "প্ৰতাপ সিংহ"], answer: 0 },
+     { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠাতা কোন?", options: ["সুকফা", "ৰুদ্ৰ সিংহ", "গদাধৰ সিংহ", "প্ৰতাপ সিংহ"], answer: 0 },
+    { question: "অসমৰ চৰকাৰী ফুল কি?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "কোনখন নদী অসমৰ পৰা ব্ৰহ্মপুত্ৰলৈ গতি কৰে?", options: ["বৰাক", "ডিব্ৰুগড়", "গঙ্গা", "ব্ৰহ্মপুত্ৰ"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ চৰকাৰী ভাষা কি?", options: ["অসমীয়া", "হিন্দী", "ইংৰাজী", "বেঙ্গালী"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক দীঘল নদী কোনটো?", options: ["ব্ৰহ্মপুত্ৰ", "নাইল", "আমাজন", "গঙ্গা"], answer: 2 },
+    { question: "কোনখন অসমৰ ৰাষ্ট্ৰীয় উদ্যান?", options: ["কাজিৰঙা", "মানস", "নমৰি", "পবিত্ৰ"], answer: 0 },
+    { question: "শ্ৰীমন্ত শঙ্কৰদেৱৰ জন্মস্থান কি?", options: ["বৰপেটা", "নলবাৰী", "গুৱাহাটী", "জোৱাই"], answer: 0 },
+    { question: "অসমৰ সৰ্বাধিক জনসংখ্যা থকা জিলাৰ নাম কি?", options: ["গুৱাহাটী", "জোৰহাট", "শিৱসাগৰ", "বৰপেটা"], answer: 0 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "গঙ্গা", "কবিৰ"], answer: 0 },
+    { question: "আহোম ৰাজত্ব কেতিয়াৰ পৰা আৰম্ভ হৈছিল?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "অসমৰ কোন চেনেলৰ নাম 'ডিডি অসম'?", options: ["দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ", "কিংবদন্তী"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ শেষ ৰাজধানী কি?", options: ["চাৰাইদেও", "জোৰহাট", "ৰংপুৰ", "গঢ়গাঁও"], answer: 0 },
+    { question: "শ্ৰীমন্ত শঙ্কৰদেৱৰ দেউতাৰ নাম কি?", options: ["আইদেউ আিতা", "জাকৈমতী", "খেৰকুতী", "চৈৰিণ্ড্ৰী"], answer: 0 },
+    { question: "‘মাইছুৰৰ সিংহ’ বুলি কাক জনা যায়?", options: ["আদিল শাহ", "হায়দৰ আলী", "কৃষ্ণৰাজ ৱোদেয়াৰ", "টিপু সুলতান"], answer: 3 },
+    { question: "কোনখন নদী অসমৰ সৈতে সীমা ভাগ কৰে?", options: ["ব্ৰহ্মপুত্ৰ", "গঙ্গা", "গমগৰ", "কবিৰ"], answer: 0 },
+    { question: "অসমৰ চৰকাৰী চেনেলৰ নাম কি?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "অসমৰ কোন চাৰা অসমৰ মাজত জনপ্ৰিয়?", options: ["বাঁহী", "বাঁহী", "মুর্গী", "গৰু"], answer: 0 },
+    { question: "অসমৰ পৰ্যটন কেন্দ্ৰ কোন?", options: ["কাজিৰঙা", "নমৰি", "মাজুলি", "বহাগ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "গঙ্গা", "কবিৰ"], answer: 0 },
+    { question: "ব্ৰহ্মপুত্ৰ নদী কোনৰ পৰা আৰম্ভ হয়?", options: ["তিব্বত", "ভাৰত", "বাংলাদেশ", "নেপাল"], answer: 0 },
+    { question: "অসমৰ কোন চাৰা সৰ্বাধিক কলা উৎপাদন কৰে?", options: ["গোলাঘাট", "শিৱসাগৰ", "নলবাৰী", "কচৰ"], answer: 3 },
+    { question: "কোনখন ৰাজ্যসভাৰ অধ্যক্ষ?", options: ["প্ৰধানমন্ত্ৰী", "উপ ৰাষ্ট্ৰপতি", "লোকসভাৰ অধ্যক্ষ", "ৰাষ্ট্ৰপতি"], answer: 1 },
+    { question: "কোনখন উত্তৰ-পূৰ্বাঞ্চলৰ ৰাজ্য?", options: ["পঞ্জাব", "মহারাষ্ট্র", "অসম", "গুজৰাট"], answer: 2 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "নমৰী নদী কোনখন ব্ৰহ্মপুত্ৰৰ উপনদী?", options: ["বৰাক", "বৰপেটা", "বগুৰি", "নলবাৰী"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী চেনেল?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ"], answer: 0 },
+    { question: "শ্ৰীমন্ত শঙ্কৰদেৱৰ জন্ম স্থান কি?", options: ["বৰপেটা", "নলবাৰী", "মৰিগাঁও", "জোৱাই"], answer: 0 },
+    { question: "কোনখন অসমৰ ৰাজধানী?", options: ["গুৱাহাটী", "নগাঁও", "ডিব্ৰুগড়", "শিৱসাগৰ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী চেনেল?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ"], answer: 0 },
+    { question: "কোনখন অসমৰ ৰাজধানী?", options: ["গুৱাহাটী", "নগাঁও", "ডিব্ৰুগড়", "শিৱসাগৰ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "গঙ্গা", "কবিৰ"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী চেনেল?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ"], answer: 0 },
+    { question: "কোনখন অসমৰ ৰাজধানী?", options: ["গুৱাহাটী", "নগাঁও", "ডিব্ৰুগড়", "শিৱসাগৰ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "গঙ্গা", "কবিৰ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী চেনেল?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "গঙ্গা", "কবিৰ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "নমৰী নদী কোনখন ব্ৰহ্মপুত্ৰৰ উপনদী?", options: ["বৰাক", "বৰপেটা", "বগুৰি", "নলবাৰী"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "গঙ্গা", "কবিৰ"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী চেনেল?", options: ["ডিডি অসম", "দুৰদৰ্শন", "এনডিটিভি", "জি নিউজ"], answer: 0 },
+    { question: "কোনখন অসমৰ ৰাজধানী?", options: ["গুৱাহাটী", "নগাঁও", "ডিব্ৰুগড়", "শিৱসাগৰ"], answer: 0 },
+    { question: "কোনখন অসমৰ চৰকাৰী ফুল?", options: ["কপৌ ফুল", "পদ্মফুল", "গোলাপ", "লেলি"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "জ্যোতি প্ৰসাদ আগৰৱাল", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত"], answer: 2 },
+    { question: "অসমৰ কোন নদী সৰ্বাধিক দীঘল?", options: ["ব্ৰহ্মপুত্ৰ", "বৰাক", "গঙ্গা", "কবিৰ"], answer: 0 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠা কৰা হৈছিল কেতিয়া?", options: ["1228", "1250", "1300", "1350"], answer: 0 },
+    { question: "ভারতৰ প্ৰথম প্ৰধান মন্ত্ৰী কোন আছিল?", options: ["মহেন্দ্ৰ প্ৰতাপ", "জৱাহৰলাল নেহৰু", "বাৰাক ওবামা", "গান্ধীজি"], answer: 1 },
+    { question: "অসমৰ ৰাজ্যপাল কেতিয়া নিযুক্ত কৰা হয়?", options: ["প্ৰতি বছৰে", "প্ৰতি পাঁচ বছৰে", "প্ৰতি দুঘণ্টাত", "প্ৰতি সপ্তাহত"], answer: 1 },
+    { question: "মহাভাৰতৰ লেখক কোন?", options: ["বিৰাট", "ভগৱান বুদ্ধ", "বিষ্ণু", "ব্যাস"], answer: 3 },
+    { question: "আন্তৰ্জাতিক মাতৃভাষা দিৱস কেতিয়া পালিত হয়?", options: ["২১ ফেব্ৰুৱাৰী", "১৫ আগষ্ট", "২৬ জানুৱাৰী", "১ মে"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক জনসংখ্যা থকা দেশ কোনটো?", options: ["চীন", "ভাৰত", "আমেৰিকা", "ৰাছিয়া"], answer: 0 },
+    { question: "অসমৰ প্ৰথম চাৰা গছৰ নাম কি?", options: ["কপৌ", "গোলাপ", "লেলি", "পদ্ম"], answer: 0 },
+    { question: "প্ৰথম অসমীয়া চহৰ কোন?", options: ["গুৱাহাটী", "শিৱসাগৰ", "ৰঙিয়া", "জোৰহাট"], answer: 0 },
+    { question: "ব্ৰিটিছৰ পৰা ভাৰতৰ স্বাধীনতা কেতিয়া লাভ হৈছিল?", options: ["১৯৪৭", "১৯৪৫", "১৯৩०", "১৯৫০"], answer: 0 },
+    { question: "আন্তৰ্জাতিক পৰ্যটন দিৱস কেতিয়া?", options: ["২৭ সেপ্টেম্বর", "১০ অক্টোবৰ", "১৫ নৱেম্বৰ", "১৫ মে"], answer: 0 },
+    { question: "ভাৰতৰ ৰাষ্ট্ৰীয় পশু কি?", options: ["হাতী", "বাঘ", "গৰু", "কুকুৰ"], answer: 1 },
+    { question: "কোনখন উপন্যাসৰ লেখক ৰবীন্দ্ৰনাথ ঠাকুৰ?", options: ["গীতাঞ্জলি", "চোখে দেখা", "কামলাকান্তৰ দেউতাক", "দেৱদাস"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক দীঘল নদী কোনটো?", options: ["ব্ৰহ্মপুত্ৰ", "আমাজন", "নাইল", "গঙ্গা"], answer: 1 },
+    { question: "কোনখন দেশ ‘ল্যান্ড অফ দ্য ৰাইজিং সান’ বুলি জনা যায়?", options: ["চীন", "জাপান", "থাইলেণ্ড", "ভাৰত"], answer: 1 },
+    { question: "বিশ্বৰ প্ৰথম মহিলাৰ প্ৰধান মন্ত্ৰী কোন?", options: ["ইণ্ডিৰা গান্ধী", "মରি কুৰী", "মাৰ্গাৰেট থেচাৰ", "এঞ্জেলা মাৰ্কেল"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক উচ্চতম পৰ্বত কোনটো?", options: ["এভারেস্ট", "কাঞ্চনজঙ্ঘা", "মনাল", "কৰাকৰাম"], answer: 0 },
+    { question: "নতুন দিল্লীৰ ৰাজধানী কোন?", options: ["দিল্লী", "মুম্বাই", "কলকাতা", "চেন্নাই"], answer: 0 },
+    { question: "ইউনেস্কো দ্বাৰা ঘোষিত বিশ্ব ঐতিহ্যস্থলৰ সংখ্যা কিমান?", options: ["১০০", "১০২", "১২০", "১৩০"], answer: 1 },
+    { question: "কোনখন ভাৰতৰ ৰাষ্ট্ৰীয় গীত?", options: ["জনা গনা মানা", "বন্দে মাতরম", "বিজয়গীত", "শ্ৰী ৰামচন্দ্র"], answer: 0 },
+    { question: "বিশ্বৰ প্ৰথম মুনা কি?", options: ["মহাকাশ ষ্টেশন", "Apollo 11", "Mars Rover", "Sputnik 1"], answer: 1 },
+    { question: "কোনখন দেশৰ ৰাষ্ট্ৰীয় ভাষা জাপানী?", options: ["চীন", "জাপান", "থাইলেণ্ড", "ভাৰত"], answer: 1 },
+    { question: "৩, ৬, ৯, ১২, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["১৫", "১৮", "২১", "২৪"], answer: 1 },
+    { question: "৩, ৫, ৮, ১২, ১৭, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["২২", "২৩", "২৪", "২৫"], answer: 0 },
+    { question: "যদি 'A' = 1, 'B' = 2, 'C' = 3, তেনে 'D'ৰ মান কি?", options: ["3", "4", "5", "6"], answer: 1 },
+    { question: "কোনটো সংখ্যা ৩ৰ গুণ?", options: ["১২", "১৫", "১৬", "১৮"], answer: 0 },
+    { question: "কোনটো শব্দ ‘গৃহ’ৰ প্ৰতিবাদ?", options: ["অবাস", "স্থল", "স্থায়ী", "অস্থায়ী"], answer: 0 },
+    { question: "যদি ৫, ১০, ১৫, ২০ ... এই শৃংখলাৰ পৰৱৰ্তী সংখ্যা কি?", options: ["২৫", "৩০", "৩৫", "৪০"], answer: 0 },
+    { question: "যদি ৩, ৯, ২৭, ৮১, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["২৫", "৩০", "৩৫", "৪০"], answer: 1 },
+    { question: "সৰ্বাধিক সংখ্যাৰ পৰা সৰ্বনিম্ন সংখ্যা কি?", options: ["১", "২", "৩", "৪"], answer: 0 },
+    { question: "যদি ১০, ২০, ৩০, ৪০ ... এই শৃংখলাৰ পৰৱৰ্তী সংখ্যা কি?", options: ["৫০", "৬০", "৭০", "৮০"], answer: 0 },
+    { question: "৪, ১৬, ৩৬, ৬৪, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["৯৬", "১২০", "১০০", "৮৪"], answer: 0 },
+    { question: "Which is the synonym of 'happy'?", options: ["Sad", "Joyful", "Angry", "Bored"], answer: 1 },
+    { question: "Complete the sentence: She is ___ artist.", options: ["a", "an", "the", "none"], answer: 1 },
+    { question: "What is the antonym of 'difficult'?", options: ["Easy", "Hard", "Tough", "Complex"], answer: 0 },
+    { question: "Choose the correct form: He ___ to school every day.", options: ["go", "goes", "gone", "going"], answer: 1 },
+    { question: "What does 'rapid' mean?", options: ["Slow", "Fast", "Steady", "Quiet"], answer: 1 },
+    { question: "Which is the correct sentence?", options: ["She don't like coffee.", "She doesn't likes coffee.", "She doesn't like coffee.", "She not like coffee."], answer: 2 },
+    { question: "What is the plural of 'child'?", options: ["Childs", "Children", "Childer", "Chilren"], answer: 1 },
+    { question: "Fill in the blank: I ___ to the market yesterday.", options: ["go", "went", "gone", "going"], answer: 1 },
+    { question: "What is the opposite of 'light'?", options: ["Heavy", "Dark", "Bright", "Dim"], answer: 1 },
+    { question: "Which word is spelled incorrectly?", options: ["Accommodate", "Definitely", "Occurrence", "Enviroment"], answer: 3 },
+    { question: "What is 15% of 200?", options: ["30", "25", "20", "15"], answer: 0 },
+    { question: "What is the square root of 64?", options: ["6", "7", "8", "9"], answer: 2 },
+    { question: "If a triangle has sides of 3, 4, and 5, what type of triangle is it?", options: ["Scalene", "Isosceles", "Equilateral", "Right"], answer: 3 },
+    { question: "What is 12 × 12?", options: ["144", "124", "132", "156"], answer: 0 },
+    { question: "What is the value of π (pi)?", options: ["3.14", "3.16", "3.12", "3.18"], answer: 0 },
+    { question: "What is the perimeter of a square with side 5?", options: ["15", "20", "25", "30"], answer: 1 },
+    { question: "What is the area of a rectangle with length 10 and width 5?", options: ["50", "55", "60", "45"], answer: 0 },
+    { question: "What is 100 divided by 4?", options: ["20", "25", "30", "15"], answer: 1 },
+    { question: "If x + 5 = 12, what is x?", options: ["5", "7", "8", "12"], answer: 1 },
+    { question: "What is the next prime number after 7?", options: ["8", "9", "10", "11"], answer: 3 },
+    { question: "What does a red traffic light mean?", options: ["Go", "Stop", "Caution", "Yield"], answer: 1 },
+    { question: "What is the maximum speed limit in urban areas in India?", options: ["40 km/h", "50 km/h", "60 km/h", "70 km/h"], answer: 1 },
+    { question: "What does a yellow traffic light indicate?", options: ["Stop", "Slow down", "Go", "Caution"], answer: 3 },
+    { question: "Which sign indicates a pedestrian crossing?", options: ["Circle", "Triangle", "Square", "Rectangle"], answer: 0 },
+    { question: "What is the main purpose of road signs?", options: ["Decoration", "Direction", "Safety", "None"], answer: 2 },
+    { question: "What is the legal age for driving in India?", options: ["16", "17", "18", "21"], answer: 2 },
+    { question: "What does a 'No Entry' sign indicate?", options: ["Allowed", "Banned", "Caution", "Speed limit"], answer: 1 },
+    { question: "What should you do at a stop sign?", options: ["Slow down", "Speed up", "Stop", "Ignore"], answer: 2 },
+    { question: "What is the primary function of seat belts?", options: ["Comfort", "Style", "Safety", "None"], answer: 2 },
+    { question: "What should you do in case of a flat tire?", options: ["Drive faster", "Stop and change it", "Ignore it", "Call someone"], answer: 1 },
+    { question: "ভারতৰ প্ৰথম প্ৰধান মন্ত্ৰী কোন আছিল?", options: ["মহেন্দ্ৰ প্ৰতাপ", "জৱাহৰলাল নেহৰু", "বাৰাক ওবামা", "গান্ধীজি"], answer: 1 },
+    { question: "আন্তৰ্জাতিক মাতৃভাষা দিৱস কেতিয়া পালিত হয়?", options: ["২১ ফেব্ৰুৱাৰী", "১৫ আগষ্ট", "২৬ জানুৱাৰী", "১ মে"], answer: 0 },
+    { question: "মহাভাৰতৰ লেখক কোন?", options: ["বিৰাট", "ভগৱান বুদ্ধ", "বিষ্ণু", "ব্যাস"], answer: 3 },
+    { question: "আহোম ৰাজ্যৰ প্ৰতিষ্ঠাতা কোন?", options: ["সুকফা", "ৰুদ্ৰ সিংহ", "গদাধৰ সিংহ", "প্ৰতাপ সিংহ"], answer: 0 },
+    { question: "ব্ৰিটিছৰ পৰা ভাৰতৰ স্বাধীনতা কেতিয়া লাভ হৈছিল?", options: ["১৯৪৭", "১৯৪৫", "১৯৩০", "১৯৫০"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক জনসংখ্যা থকা দেশ কোনটো?", options: ["চীন", "ভাৰত", "আমেৰিকা", "ৰাছিয়া"], answer: 0 },
+    { question: "আন্তৰ্জাতিক পৰ্যটন দিৱস কেতিয়া?", options: ["২৭ সেপ্টেম্বর", "১০ অক্টোবৰ", "১৫ নৱেম্বৰ", "১৫ মে"], answer: 0 },
+    { question: "অসমৰ প্ৰথম চাৰা গছৰ নাম কি?", options: ["কপৌ", "গোলাপ", "লেলি", "পদ্ম"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক উচ্চতম পৰ্বত কোনটো?", options: ["এভারেস্ট", "কাঞ্চনজঙ্ঘা", "মনাল", "কৰাকৰাম"], answer: 0 },
+    { question: "কোনখন দেশ ‘ল্যান্ড অফ দ্য ৰাইজিং সান’ বুলি জনা যায়?", options: ["চীন", "জাপান", "থাইলেণ্ড", "ভাৰত"], answer: 1 },
+    { question: "কোনখন উপন্যাসৰ লেখক ৰবীন্দ্ৰনাথ ঠাকুৰ?", options: ["গীতাঞ্জলি", "চোখে দেখা", "কামলাকান্তৰ দেউতাক", "দেৱদাস"], answer: 0 },
+    { question: "বিশ্বৰ প্ৰথম মহিলাৰ প্ৰধান মন্ত্ৰী কোন?", options: ["ইণ্ডিৰা গান্ধী", "মৰি কুৰী", "মাৰ্গাৰেট থেচাৰ", "এঞ্জেলা মাৰ্কেল"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক দীঘল নদী কোনটো?", options: ["ব্ৰহ্মপুত্ৰ", "আমাজন", "নাইল", "গঙ্গা"], answer: 1 },
+    { question: "নতুন দিল্লীৰ ৰাজধানী কোন?", options: ["দিল্লী", "মুম্বাই", "কলকাতা", "চেন্নাই"], answer: 0 },
+    { question: "ইউনেস্কো দ্বাৰা ঘোষিত বিশ্ব ঐতিহ্যস্থলৰ সংখ্যা কিমান?", options: ["১০০", "১০২", "১২০", "১৩০"], answer: 1 },
+    { question: "বিশ্বৰ প্ৰথম মুনা কি?", options: ["মহাকাশ ষ্টেশন", "Apollo 11", "Mars Rover", "Sputnik 1"], answer: 1 },
+    { question: "কোনখন ভাৰতৰ ৰাষ্ট্ৰীয় গীত?", options: ["জনা গনা মানা", "বন্দে মাতরম", "বিজয়গীত", "শ্ৰী ৰামচন্দ্র"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক জনসংখ্যা কিমান?", options: ["৭৫ কোটি", "৮০ কোটি", "৯০ কোটি", "১০০ কোটি"], answer: 1 },
+    { question: "ব্ৰিটিছৰ পৰা ভাৰতৰ স্বাধীনতা কেতিয়া লাভ হৈছিল?", options: ["১৯৪৭", "১৯৪৫", "১৯৩০", "১৯৫০"], answer: 0 },
+    { question: "বিশ্বৰ সৰ্বাধিক জনসংখ্যা থকা দেশ কোন?", options: ["চীন", "ভাৰত", "আমেৰিকা", "ৰাছিয়া"], answer: 0 },
+    { question: "৩, ৬, ৯, ১২, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["১৫", "১৮", "২১", "২৪"], answer: 1 },
+    { question: "৩, ৫, ৮, ১২, ১৭, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["২২", "২৩", "২৪", "২৫"], answer: 0 },
+    { question: "যদি 'A' = 1, 'B' = 2, 'C' = 3, তেনে 'D'ৰ মান কি?", options: ["3", "4", "5", "6"], answer: 1 },
+    { question: "যদি ১০, ২০, ৩০, ৪০ ... এই শৃংখলাৰ পৰৱৰ্তী সংখ্যা কি?", options: ["৫০", "৬০", "৭০", "৮০"], answer: 0 },
+    { question: "৪, ১৬, ৩৬, ৬৪, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["৯৬", "১২০", "১০০", "৮৪"], answer: 0 },
+    { question: "সৰ্বাধিক সংখ্যাৰ পৰা সৰ্বনিম্ন সংখ্যা কি?", options: ["১", "২", "৩", "৪"], answer: 0 },
+    { question: "যদি ৫, ১০, ১৫, ২০ ... এই শৃংখলাৰ পৰৱৰ্তী সংখ্যা কি?", options: ["২৫", "৩০", "৩৫", "৪০"], answer: 0 },
+    { question: "যদি ৩, ৯, ২৭, ৮১, ... এই শৃংখলাৰ পরবর্তী সংখ্যা কি?", options: ["২৫", "৩০", "৩৫", "৪০"], answer: 1 },
+    { question: "কোনটো সংখ্যা ৩ৰ গুণ?", options: ["১২", "১৫", "১৬", "১৮"], answer: 0 },
+    { question: "যদি ৫, ১০, ১৫, ২০ ... এই শৃংখলাৰ পৰৱৰ্তী সংখ্যা কি?", options: ["২৫", "৩০", "৩৫", "৪০"], answer: 0 },
+    { question: "Which is the synonym of 'happy'?", options: ["Sad", "Joyful", "Angry", "Bored"], answer: 1 },
+    { question: "Complete the sentence: She is ___ artist.", options: ["a", "an", "the", "none"], answer: 1 },
+    { question: "What is the antonym of 'difficult'?", options: ["Easy", "Hard", "Tough", "Complex"], answer: 0 },
+    { question: "Choose the correct form: He ___ to school every day.", options: ["go", "goes", "gone", "going"], answer: 1 },
+    { question: "What does 'rapid' mean?", options: ["Slow", "Fast", "Steady", "Quiet"], answer: 1 },
+    { question: "Which is the correct sentence?", options: ["She don't like coffee.", "She doesn't likes coffee.", "She doesn't like coffee.", "She not like coffee."], answer: 2 },
+    { question: "What is the plural of 'child'?", options: ["Childs", "Children", "Childer", "Chilren"], answer: 1 },
+    { question: "Fill in the blank: I ___ to the market yesterday.", options: ["go", "went", "gone", "going"], answer: 1 },
+    { question: "What is the opposite of 'light'?", options: ["Heavy", "Dark", "Bright", "Dim"], answer: 1 },
+    { question: "Which word is spelled incorrectly?", options: ["Accommodate", "Definitely", "Occurrence", "Enviroment"], answer: 3 },
+    { question: "What is 15% of 200?", options: ["30", "25", "20", "15"], answer: 0 },
+    { question: "What is the square root of 64?", options: ["6", "7", "8", "9"], answer: 2 },
+    { question: "If a triangle has sides of 3, 4, and 5, what type of triangle is it?", options: ["Scalene", "Isosceles", "Equilateral", "Right"], answer: 3 },
+    { question: "What is 12 × 12?", options: ["144", "124", "132", "156"], answer: 0 },
+    { question: "What is the value of π (pi)?", options: ["3.14", "3.16", "3.12", "3.18"], answer: 0 },
+    { question: "What is the perimeter of a square with side 5?", options: ["15", "20", "25", "30"], answer: 1 },
+    { question: "What is the area of a rectangle with length 10 and width 5?", options: ["50", "55", "60", "45"], answer: 0 },
+    { question: "What is 100 divided by 4?", options: ["20", "25", "30", "15"], answer: 1 },
+    { question: "If x + 5 = 12, what is x?", options: ["5", "7", "8", "12"], answer: 1 },
+    { question: "What is the next prime number after 7?", options: ["8", "9", "10", "11"], answer: 3 },
+    { question: "What does a red traffic light mean?", options: ["Go", "Stop", "Caution", "Yield"], answer: 1 },
+    { question: "What is the maximum speed limit in urban areas in India?", options: ["40 km/h", "50 km/h", "60 km/h", "70 km/h"], answer: 1 },
+    { question: "What does a yellow traffic light indicate?", options: ["Stop", "Slow down", "Go", "Caution"], answer: 3 },
+    { question: "Which sign indicates a pedestrian crossing?", options: ["Circle", "Triangle", "Square", "Rectangle"], answer: 0 },
+    { question: "What is the main purpose of road signs?", options: ["Decoration", "Direction", "Safety", "None"], answer: 2 },
+    { question: "What is the legal age for driving in India?", options: ["16", "17", "18", "21"], answer: 2 },
+    { question: "What does a 'No Entry' sign indicate?", options: ["Allowed", "Banned", "Caution", "Speed limit"], answer: 1 },
+    { question: "What should you do at a stop sign?", options: ["Slow down", "Speed up", "Stop", "Ignore"], answer: 2 },
+    { question: "What is the primary function of seat belts?", options: ["Comfort", "Style", "Safety", "None"], answer: 2 },
+    { question: "What should you do in case of a flat tire?", options: ["Drive faster", "Stop and change it", "Ignore it", "Call someone"], answer: 1 },
+    { question: "ভারতৰ প্ৰথম ৰাষ্ট্ৰপতি কোন আছিল?", options: ["ডঃ ৰাজেন্দ্ৰ প্ৰসাদ", "গান্ধীজি", "ৰবীন্দ্ৰনাথ ঠাকুৰ", "জৱাহৰলাল নেহৰু"], answer: 0 },
+    { question: "অসমৰ ৰাজধানী কি?", options: ["গুৱাহাটী", "শিৱসাগৰ", "জোৰহাট", "ৰংপুৰ"], answer: 0 },
+    { question: "ভারতৰ স্বাধীনতা কেতিয়া লাভ হৈছিল?", options: ["১৯৪৫", "১৯৪৭", "১৯৩০", "১৯৫০"], answer: 1 },
+    { question: "অসমৰ চৰকাৰী ভাষা কি?", options: ["অসমীয়া", "হিন্দী", "ইংৰাজী", "বেঙ্গালী"], answer: 0 },
+    { question: "ভারতৰ ৰাষ্ট্ৰীয় পশু কি?", options: ["গৰু", "বাঘ", "হাতী", "শৃগাল"], answer: 1 },
+    { question: "বিশ্বৰ সৰ্বাধিক জনসংখ্যা থকা দেশ কোন?", options: ["চীন", "ভাৰত", "আমেৰিকা", "জাপান"], answer: 0 },
+    { question: "অসমৰ প্ৰথম মুখ্যমন্ত্ৰী কোন আছিল?", options: ["বিৰেন দত্ত", "গোপীনাথ বৰদলৈ", "প্ৰফুল্ল কুমাৰ মহন্ত", "জ্যোতি প্ৰসাদ আগৰৱাল"], answer: 1 },
+    { question: "বিশ্বৰ সৰ্বাধিক দীঘল নদী কোনটো?", options: ["ব্ৰহ্মপুত্ৰ", "আমাজন", "নাইল", "গঙ্গা"], answer: 1 },
+    { question: "আন্তৰ্জাতিক মাতৃভাষা দিৱস কেতিয়া পালিত হয়?", options: ["২১ ফেব্ৰুৱাৰী", "১৫ আগষ্ট", "২৬ জানুৱাৰী", "১ মে"], answer: 0 },
+    { question: "ভারতৰ ৰাষ্ট্ৰীয় গীত কি?", options: ["বন্দে মাতরম", "জনা গনা মানা", "গীতাঞ্জলি", "বিজয়গীত"], answer: 1 },
+    { question: "What is 25% of 200?", options: ["25", "50", "75", "100"], answer: 1 },
+    { question: "If a train travels 60 km in 1 hour, how far will it travel in 3 hours?", options: ["120 km", "180 km", "200 km", "240 km"], answer: 1 },
+    { question: "What is the area of a rectangle with length 10 and width 5?", options: ["50", "55", "60", "45"], answer: 0 },
+    { question: "What is 15% of 300?", options: ["45", "50", "55", "60"], answer: 0 },
+    { question: "What is the square of 12?", options: ["144", "124", "132", "156"], answer: 0 },
+    { question: "If x + 5 = 10, what is x?", options: ["5", "6", "7", "8"], answer: 0 },
+    { question: "What is the perimeter of a square with side 4?", options: ["12", "16", "20", "24"], answer: 1 },
+    { question: "What is 100 divided by 5?", options: ["15", "20", "25", "30"], answer: 2 },
+    { question: "If a shirt costs $40 and is on sale for 20% off, what is the sale price?", options: ["$30", "$32", "$36", "$38"], answer: 2 },
+    { question: "How many degrees are in a right angle?", options: ["90", "180", "360", "45"], answer: 0 },
+    { question: "Complete the series: 2, 4, 6, 8, ...", options: ["9", "10", "11", "12"], answer: 1 },
+    { question: "Which of the following is an analogy: Finger is to Hand as Toe is to?", options: ["Foot", "Leg", "Knee", "Ankle"], answer: 0 },
+    { question: "If all roses are flowers and some flowers fade quickly, which of the following is true?", options: ["Some roses fade quickly", "All flowers are roses", "No roses fade quickly", "None of the above"], answer: 0 },
+    { question: "Find the odd one out: 2, 4, 6, 8, 10, 12, 14, 15", options: ["10", "12", "14", "15"], answer: 3 },
+    { question: "If A is taller than B, and B is taller than C, who is the shortest?", options: ["A", "B", "C", "None"], answer: 2 },
+    { question: "What comes next in the series: A, C, E, G, ...?", options: ["H", "I", "J", "K"], answer: 0 },
+    { question: "Which word does not belong with the others?: Apple, Banana, Carrot, Grape", options: ["Apple", "Banana", "Carrot", "Grape"], answer: 2 },
+    { question: "If the day after tomorrow is Monday, what day is today?", options: ["Saturday", "Sunday", "Friday", "Thursday"], answer: 0 },
+    { question: "What is the next number in the sequence: 1, 1, 2, 3, 5, ...?", options: ["7", "8", "9", "10"], answer: 1 },
+    { question: "Which shape is different from the others?: Circle, Triangle, Square, Rectangle", options: ["Circle", "Triangle", "Square", "Rectangle"], answer: 0 },
+    { question: "What is the capital of India?", options: ["New Delhi", "Mumbai", "Kolkata", "Chennai"], answer: 0 },
+    { question: "Who was the first President of India?", options: ["Dr. Rajendra Prasad", "Jawaharlal Nehru", "Gandhi", "Sardar Patel"], answer: 0 },
+    { question: "What is the highest constitutional authority in India?", options: ["President", "Prime Minister", "Chief Justice", "Parliament"], answer: 0 },
+    { question: "Who wrote the Indian National Anthem?", options: ["Rabindranath Tagore", "Bankim Chandra Chatterjee", "Ramesh Chandra Dutta", "Mahatma Gandhi"], answer: 0 },
+    { question: "Which article of the Constitution deals with the Right to Equality?", options: ["Article 14", "Article 19", "Article 21", "Article 22"], answer: 0 },
+    { question: "What is the currency of India?", options: ["Dollar", "Euro", "Rupee", "Pound"], answer: 2 },
+    { question: "Which is the largest state in India by area?", options: ["Maharashtra", "Uttar Pradesh", "Rajasthan", "Bihar"], answer: 2 },
+    { question: "Which is the official language of India?", options: ["Hindi", "English", "Bengali", "Urdu"], answer: 0 },
+    { question: "What is the national animal of India?", options: ["Elephant", "Tiger", "Lion", "Peacock"], answer: 1 },
+    { question: "Who is known as the Father of the Nation in India?", options: ["Jawaharlal Nehru", "Mahatma Gandhi", "B.R. Ambedkar", "Sardar Patel"], answer: 1 },
+    { question: "Choose the correct form: She ___ to the store every day.", options: ["go", "goes", "gone", "going"], answer: 1 },
+    { question: "What is the antonym of 'happy'?", options: ["Sad", "Joyful", "Angry", "Excited"], answer: 0 },
+    { question: "What is the synonym of 'quick'?", options: ["Fast", "Slow", "Lazy", "Calm"], answer: 0 },
+    { question: "Fill in the blank: The cat is ___ the table.", options: ["on", "in", "under", "over"], answer: 0 },
+    { question: "Which of the following is spelled incorrectly?", options: ["Accommodate", "Definitely", "Occurence", "Environment"], answer: 2 },
+    { question: "What is the plural of 'child'?", options: ["Childs", "Children", "Childer", "Chilren"], answer: 1 },
+    { question: "Which word means the opposite of 'big'?", options: ["Small", "Large", "Huge", "Tall"], answer: 0 },
+    { question: "Choose the correct word: I have ___ apple.", options: ["a", "an", "the", "none"], answer: 1 },
+    { question: "What is the past tense of 'go'?", options: ["Goes", "Gone", "Went", "Going"], answer: 2 },
+    { question: "What does 'write' mean?", options: ["To read", "To speak", "To inscribe", "To draw"], answer: 2 },
+    { question: "What is the capital city of Assam?", options: ["Guwahati", "Silchar", "Dibrugarh", "Jorhat"], answer: 0 },
+    { question: "Which festival is celebrated as the harvest festival in Assam?", options: ["Bihu", "Holi", "Diwali", "Eid"], answer: 0 },
+    { question: "Who is the Chief Minister of Assam as of 2023?", options: ["Himanta Biswa Sarma", "Sarbananda Sonowal", "Tarun Gogoi", "Biren Singh"], answer: 0 },
+    { question: "Which river flows through Assam?", options: ["Brahmaputra", "Ganga", "Yamuna", "Godavari"], answer: 0 },
+    { question: "What is the official language of Assam?", options: ["Assamese", "Bengali", "Hindi", "English"], answer: 0 },
+    { question: "Which sanctuary is famous for one-horned rhinoceros?", options: ["Kaziranga", "Manas", "Nameri", "Bura Chapori"], answer: 0 },
+    { question: "What is the significance of the date 26th January in India?", options: ["Independence Day", "Republic Day", "Gandhi Jayanti", "Labour Day"], answer: 1 },
+    { question: "Which dance form is associated with Assam?", options: ["Bharatnatyam", "Sattriya", "Kathak", "Odissi"], answer: 1 },
+    { question: "Who is known as the 'Nightingale of India'?", options: ["Sarojini Naidu", "Indira Gandhi", "Mother Teresa", "Kiran Bedi"], answer: 0 },
+    { question: "What is the main occupation of the people of Assam?", options: ["Farming", "Fishing", "Mining", "Tourism"], answer: 0 },
+      
+        // Add more Assam-specific questions here
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let totalQuestions;
+    let timerDuration;
+    let timerInterval;
+    let educationLevel;
+    let shuffledQuestions;
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function register() {
+        const name = document.getElementById('name').value;
+        educationLevel = document.getElementById('education').value;
+        if (name) {
+            if (educationLevel === "12th Pass") {
+                totalQuestions = 150;
+                timerDuration = 180 * 60; // 180 minutes in seconds
+            } else {
+                totalQuestions = 135;
+                timerDuration = 110 * 60; // 110 minutes in seconds
+            }
+
+            document.getElementById('registrationContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('welcomeMessage').innerText = `Welcome, ${name}!`;
+            document.getElementById('progress').innerText = `Answered: 0 / ${totalQuestions}`;
+            shuffledQuestions = shuffleArray([...questions]); // Shuffle questions
+            startTimer();
+            loadQuestion();
+        } else {
+            alert("Please enter your name.");
+        }
+    }
+
+    function startTimer() {
+        const timerElement = document.getElementById('timer');
+        timerInterval = setInterval(() => {
+            let minutes = Math.floor(timerDuration / 60);
+            let seconds = timerDuration % 60;
+            timerElement.innerText = `Time: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            if (timerDuration <= 0) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+            timerDuration--;
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        if (currentQuestionIndex >= totalQuestions) {
+            endGame();
+            return;
+        }
+
+        const questionData = shuffledQuestions[currentQuestionIndex % shuffledQuestions.length];
+        document.getElementById('question').innerText = questionData.question;
+        const optionsList = document.getElementById('options');
+        optionsList.innerHTML = '';
+
+        questionData.options.forEach((option, index) => {
+            const li = document.createElement('li');
+            li.setAttribute('data-label', String.fromCharCode(65 + index) + '.'); // A, B, C, D
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.onclick = () => checkAnswer(index, button);
+            li.appendChild(button);
+            optionsList.appendChild(li);
+        });
+    }
+
+    function checkAnswer(selectedOption, button) {
+        const questionData = shuffledQuestions[currentQuestionIndex % shuffledQuestions.length];
+        if (selectedOption === questionData.answer) {
+            button.classList.add('correct');
+            score += 1;
+        } else {
+            button.classList.add('incorrect');
+            score -= 0.25;
+        }
+        currentQuestionIndex++;
+        updateScore();
+        updateProgress();
+        setTimeout(loadQuestion, 1000);
+    }
+
+    function updateScore() {
+        document.getElementById('score').innerText = `Score: ${score.toFixed(2)}`;
+    }
+
+    function updateProgress() {
+        document.getElementById('progress').innerText = `Answered: ${currentQuestionIndex} / ${totalQuestions}`;
+    }
+
+    function endGame() {
+        clearInterval(timerInterval);
+        document.getElementById('quizContainer').style.display = 'none';
+        document.getElementById('resultContainer').style.display = 'block';
+        document.getElementById('resultSummary').innerText = `You answered ${currentQuestionIndex} questions. Your final score is ${score.toFixed(2)} out of ${totalQuestions}.`;
+    }
+
+    function printCertificate() {
+        const name = document.getElementById('name').value;
+        const certificateWindow = window.open('', 'PRINT', 'height=600,width=800');
+
+        certificateWindow.document.write('<html><head><title>Certificate</title>');
+        certificateWindow.document.write('<style>');
+        certificateWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f3f4f6; }');
+        certificateWindow.document.write('.certificate { border: 15px solid #3a3a3c; padding: 50px; width: 70%; text-align: center; background-color: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }');
+        certificateWindow.document.write('h1 { font-size: 2.5em; margin-bottom: 0.5em; color: #3a3a3c; }');
+        certificateWindow.document.write('h2 { font-size: 2em; margin-bottom: 0.5em; color: #3a3a3c; }');
+        certificateWindow.document.write('p { font-size: 1.2em; margin-bottom: 1.5em; color: #3a3a3c; }');
+
+        // Print styles to hide everything except the certificate
+        certificateWindow.document.write('@media print { * { display: none; } .certificate { display: block; } }');
+        
+        certificateWindow.document.write('</style>');
+        certificateWindow.document.write('</head><body>');
+        certificateWindow.document.write('<div class="certificate">');
+        certificateWindow.document.write('<h1>Certificate of Completion</h1>');
+        certificateWindow.document.write('<h2>Presented by DigitSync</h2>');
+        certificateWindow.document.write('<p>This certifies that</p>');
+        certificateWindow.document.write(`<h2>${name}</h2>`);
+        certificateWindow.document.write(`<p>has successfully completed the Assam Recruitment Exam Practice for ${educationLevel}.</p>`);
+        certificateWindow.document.write(`<p>Final Score: ${score.toFixed(2)} out of ${totalQuestions}.</p>`);
+        certificateWindow.document.write('<p>Keep up the great work and continue to strive for excellence!</p>');
+        certificateWindow.document.write('</div>');
+        certificateWindow.document.write('</body></html>');
+
+        certificateWindow.document.close();
+        certificateWindow.document.focus();
+
+        // Add a timeout before printing
+        setTimeout(() => {
+            certificateWindow.print();
+            certificateWindow.close();
+        }, 500);
+    }
+</script>
+
+</body>
+</html>
