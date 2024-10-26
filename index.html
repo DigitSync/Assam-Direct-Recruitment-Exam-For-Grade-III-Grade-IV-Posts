@@ -111,9 +111,14 @@
 <div class="container quiz-container" id="quizContainer" style="display:none;">
     <h2 id="welcomeMessage"></h2>
     <div class="timer" id="timer">Time: 00:00</div>
-   <div class="rules" style="font-size: smaller;"><i>Answer each question correctly to gain points. Negative marking for incorrect answers.</i></div>
-    <div class="question" id="question" style="font-weight: bold; color=red;">Loading...</div>
+    <div class="rules">Answer each question correctly to gain points. Negative marking for incorrect answers.</div>
+    <div class="question" id="question">Loading...</div>
     <ul class="options" id="options"></ul>
+    <div class="navigation-buttons">
+    <button style="padding: 5px 10px; font-size: 0.9em; background-color: darkgreen; border: none; cursor: pointer;" onclick="previousQuestion()">Previous</button>
+    <button style="padding: 5px 10px; font-size: 0.9em; background-color: darkgreen; border: none; cursor: pointer;" onclick="nextQuestion()">Next</button>
+</div>
+div>
     <div class="score" id="score">Score: 0</div>
     <div class="progress" id="progress">Answered: 0 / 0</div>
 </div>
@@ -121,6 +126,7 @@
 <div class="container certificate" id="resultContainer">
     <h1>Exam Results</h1>
     <p id="resultSummary">Calculating...</p>
+    
     <button onclick="printCertificate()">Print Certificate</button>
 </div>
 
@@ -547,150 +553,229 @@
         // Add more Assam-specific questions here
     ];
 
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let totalQuestions;
-    let timerDuration;
-    let timerInterval;
-    let educationLevel;
-    let shuffledQuestions;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let totalQuestions;
+    let timerDuration;
+    let timerInterval;
+    let educationLevel;
+    let shuffledQuestions;
+    let answeredQuestions = {}; // Keep track of answered questions with details 
 
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    } 
 
-    function register() {
-        const name = document.getElementById('name').value;
-        educationLevel = document.getElementById('education').value;
-        if (name) {
-            if (educationLevel === "12th Pass") {
-                totalQuestions = 150;
-                timerDuration = 180 * 60; // 180 minutes in seconds
-            } else {
-                totalQuestions = 135;
-                timerDuration = 110 * 60; // 110 minutes in seconds
-            }
+    function register() {
+        const name = document.getElementById('name').value;
+        educationLevel = document.getElementById('education').value;
+        if (name) {
+            if (educationLevel === "12th Pass") {
+                totalQuestions = 150;
+                timerDuration = 180 * 60; // 180 minutes in seconds
+            } else {
+                totalQuestions = 135;
+                timerDuration = 110 * 60; // 110 minutes in seconds
+            } 
 
-            document.getElementById('registrationContainer').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            document.getElementById('welcomeMessage').innerText = `Welcome, ${name}!`;
-            document.getElementById('progress').innerText = `Answered: 0 / ${totalQuestions}`;
-            shuffledQuestions = shuffleArray([...questions]); // Shuffle questions
-            startTimer();
-            loadQuestion();
-        } else {
-            alert("Please enter your name.");
-        }
-    }
+            document.getElementById('registrationContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('welcomeMessage').innerText = `Welcome, ${name}!`;
+            document.getElementById('progress').innerText = `Answered: 0 / ${totalQuestions}`;
+            shuffledQuestions = shuffleArray([...questions]); // Shuffle questions
+            startTimer();
+            loadQuestion();
+            enterFullScreen(); // Enter full-screen mode when quiz starts
+        } else {
+            alert("Please enter your name.");
+        }
+    } 
 
-    function startTimer() {
-        const timerElement = document.getElementById('timer');
-        timerInterval = setInterval(() => {
-            let minutes = Math.floor(timerDuration / 60);
-            let seconds = timerDuration % 60;
-            timerElement.innerText = `Time: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-            if (timerDuration <= 0) {
-                clearInterval(timerInterval);
-                endGame();
-            }
-            timerDuration--;
-        }, 1000);
-    }
+    function startTimer() {
+        const timerElement = document.getElementById('timer');
+        timerInterval = setInterval(() => {
+            let minutes = Math.floor(timerDuration / 60);
+            let seconds = timerDuration % 60;
+            timerElement.innerText = `Time: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            if (timerDuration <= 0) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+            timerDuration--;
+        }, 1000);
+    } 
 
-    function loadQuestion() {
-        if (currentQuestionIndex >= totalQuestions) {
-            endGame();
-            return;
-        }
+    function loadQuestion() {
+        if (currentQuestionIndex >= totalQuestions) {
+            endGame();
+            return;
+        } 
 
-        const questionData = shuffledQuestions[currentQuestionIndex % shuffledQuestions.length];
-        document.getElementById('question').innerText = questionData.question;
-        const optionsList = document.getElementById('options');
-        optionsList.innerHTML = '';
+        const questionData = shuffledQuestions[currentQuestionIndex % shuffledQuestions.length];
+        document.getElementById('question').innerText = questionData.question;
+        const optionsList = document.getElementById('options');
+        optionsList.innerHTML = ''; 
 
-        questionData.options.forEach((option, index) => {
-            const li = document.createElement('li');
-            li.setAttribute('data-label', String.fromCharCode(65 + index) + '.'); // A, B, C, D
-            const button = document.createElement('button');
-            button.innerText = option;
-            button.onclick = () => checkAnswer(index, button);
-            li.appendChild(button);
-            optionsList.appendChild(li);
-        });
-    }
+        questionData.options.forEach((option, index) => {
+            const li = document.createElement('li');
+            li.setAttribute('data-label', String.fromCharCode(65 + index) + '.'); // A, B, C, D
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.onclick = () => checkAnswer(index, button);
+            li.appendChild(button);
+            optionsList.appendChild(li); 
 
-    function checkAnswer(selectedOption, button) {
-        const questionData = shuffledQuestions[currentQuestionIndex % shuffledQuestions.length];
-        if (selectedOption === questionData.answer) {
-            button.classList.add('correct');
-            score += 1;
-        } else {
-            button.classList.add('incorrect');
-            score -= 0.25;
-        }
-        currentQuestionIndex++;
-        updateScore();
-        updateProgress();
-        setTimeout(loadQuestion, 1000);
-    }
+            // Disable button if question has been answered
+            if (answeredQuestions[currentQuestionIndex] !== undefined) {
+                button.disabled = true;
+                if (answeredQuestions[currentQuestionIndex].selected === index) {
+                    button.style.backgroundColor = answeredQuestions[currentQuestionIndex].selected === questionData.answer ? 'green' : 'red';
+                }
+            }
+        }); 
 
-    function updateScore() {
-        document.getElementById('score').innerText = `Score: ${score.toFixed(2)}`;
-    }
+        // Highlight the correct answer if the question was answered incorrectly
+        if (answeredQuestions[currentQuestionIndex] !== undefined && answeredQuestions[currentQuestionIndex].selected !== questionData.answer) {
+            optionsList.children[questionData.answer].firstChild.style.backgroundColor = 'blue';
+        }
+    } 
 
-    function updateProgress() {
-        document.getElementById('progress').innerText = `Answered: ${currentQuestionIndex} / ${totalQuestions}`;
-    }
+    function checkAnswer(selectedOption, button) {
+        const questionData = shuffledQuestions[currentQuestionIndex % shuffledQuestions.length];
+        const optionButtons = document.querySelectorAll('#options button');
+        
+        // Disable all buttons to prevent further clicks
+        optionButtons.forEach(btn => btn.disabled = true); 
 
-    function endGame() {
-        clearInterval(timerInterval);
-        document.getElementById('quizContainer').style.display = 'none';
-        document.getElementById('resultContainer').style.display = 'block';
-        document.getElementById('resultSummary').innerText = `You answered ${currentQuestionIndex} questions. Your final score is ${score.toFixed(2)} out of ${totalQuestions}.`;
-    }
+        let isCorrect = false;
+        if (selectedOption === questionData.answer) {
+            button.style.backgroundColor = 'green'; // Correct answer
+            score += 1;
+            isCorrect = true;
+        } else {
+            button.style.backgroundColor = 'red'; // Incorrect answer
+            score -= 0.25;
+            // Highlight the correct answer
+            optionButtons[questionData.answer].style.backgroundColor = 'blue';
+        } 
 
-    function printCertificate() {
-        const name = document.getElementById('name').value;
-        const certificateWindow = window.open('', 'PRINT', 'height=600,width=800');
+        // Record the answered question with details
+        answeredQuestions[currentQuestionIndex] = {
+            selected: selectedOption,
+            correct: isCorrect,
+            correctAnswer: questionData.answer
+        }; 
 
-        certificateWindow.document.write('<html><head><title>Certificate</title>');
-        certificateWindow.document.write('<style>');
-        certificateWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f3f4f6; }');
-        certificateWindow.document.write('.certificate { border: 15px solid #3a3a3c; padding: 50px; width: 70%; text-align: center; background-color: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }');
-        certificateWindow.document.write('h1 { font-size: 2.5em; margin-bottom: 0.5em; color: #3a3a3c; }');
-        certificateWindow.document.write('h2 { font-size: 2em; margin-bottom: 0.5em; color: #3a3a3c; }');
-        certificateWindow.document.write('p { font-size: 1.2em; margin-bottom: 1.5em; color: #3a3a3c; }');
+        updateScore();
+        updateProgress();
+        setTimeout(() => {
+            currentQuestionIndex++;
+            loadQuestion();
+        }, 3000); // Wait for 3 seconds before moving to the next question
+    } 
 
-        // Print styles to hide everything except the certificate
-        certificateWindow.document.write('@media print { * { display: none; } .certificate { display: block; } }');
-        
-        certificateWindow.document.write('</style>');
-        certificateWindow.document.write('</head><body>');
-        certificateWindow.document.write('<div class="certificate">');
-        certificateWindow.document.write('<h1>Certificate of Completion</h1>');
-        certificateWindow.document.write('<h2>Presented by DigitSync</h2>');
-        certificateWindow.document.write('<p>This certifies that</p>');
-        certificateWindow.document.write(`<h2>${name}</h2>`);
-        certificateWindow.document.write(`<p>has successfully completed the Assam Recruitment Exam Practice for ${educationLevel}.</p>`);
-        certificateWindow.document.write(`<p>Final Score: ${score.toFixed(2)} out of ${totalQuestions}.</p>`);
-        certificateWindow.document.write('<p>Keep up the great work and continue to strive for excellence!</p>');
-        certificateWindow.document.write('</div>');
-        certificateWindow.document.write('</body></html>');
+    function updateScore() {
+        document.getElementById('score').innerText = `Score: ${score.toFixed(2)}`;
+    } 
 
-        certificateWindow.document.close();
-        certificateWindow.document.focus();
+    function updateProgress() {
+        document.getElementById('progress').innerText = `Answered: ${currentQuestionIndex} / ${totalQuestions}`;
+    } 
 
-        // Add a timeout before printing
-        setTimeout(() => {
-            certificateWindow.print();
-            certificateWindow.close();
-        }, 500);
-    }
+    function endGame() {
+        clearInterval(timerInterval);
+        document.getElementById('quizContainer').style.display = 'none';
+        document.getElementById('resultContainer').style.display = 'block'; 
+
+        // Create detailed results summary
+        let resultsSummary = `You answered ${currentQuestionIndex} questions. Your final score is ${score.toFixed(2)} out of ${totalQuestions}.<br><br>`;
+        resultsSummary += '<h3>Detailed Results:</h3><ol>'; 
+
+        shuffledQuestions.slice(0, currentQuestionIndex).forEach((questionData, index) => {
+            const userAnswer = answeredQuestions[index];
+            const correctOption = String.fromCharCode(65 + questionData.answer);
+            const selectedOption = String.fromCharCode(65 + userAnswer.selected); 
+
+            resultsSummary += `<li>${questionData.question}<br>`;
+            resultsSummary += `Your Answer: ${selectedOption} - ${questionData.options[userAnswer.selected]}<br>`;
+            if (!userAnswer.correct) {
+                resultsSummary += `Correct Answer: ${correctOption} - ${questionData.options[questionData.answer]}<br>`;
+            }
+            resultsSummary += '</li><br>';
+        }); 
+
+        resultsSummary += '</ol>';
+        document.getElementById('resultSummary').innerHTML = resultsSummary;
+    } 
+
+    function printCertificate() {
+        const name = document.getElementById('name').value;
+        const certificateWindow = window.open('', 'PRINT', 'height=600,width=800'); 
+
+        certificateWindow.document.write('<html><head><title>Certificate</title>');
+        certificateWindow.document.write('<style>');
+        certificateWindow.document.write('body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f3f4f6; }');
+        certificateWindow.document.write('.certificate { border: 15px solid #3a3a3c; padding: 50px; width: 70%; text-align: center; background-color: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }');
+        certificateWindow.document.write('h1 { font-size: 2.5em; margin-bottom: 0.5em; color: #3a3a3c; }');
+        certificateWindow.document.write('h2 { font-size: 2em; margin-bottom: 0.5em; color: #3a3a3c; }');
+        certificateWindow.document.write('p { font-size: 1.2em; margin-bottom: 1.5em; color: #3a3a3c; }'); 
+
+        // Print styles to hide everything except the certificate
+        certificateWindow.document.write('@media print { * { display: none; } .certificate { display: block; } }');
+        
+        certificateWindow.document.write('</style>');
+        certificateWindow.document.write('</head><body>');
+        certificateWindow.document.write('<div class="certificate">');
+        certificateWindow.document.write('<h1>Certificate of Completion</h1>');
+        certificateWindow.document.write('<h2>Presented by DigitSync</h2>');
+        certificateWindow.document.write('<p>This certifies that</p>');
+        certificateWindow.document.write(`<h2>${name}</h2>`);
+        certificateWindow.document.write(`<p>has successfully completed the Assam Recruitment Exam Practice for ${educationLevel}.</p>`);
+        certificateWindow.document.write(`<p>Final Score: ${score.toFixed(2)} out of ${totalQuestions}.</p>`);
+        certificateWindow.document.write('<p>Keep up the great work and continue to strive for excellence!</p>');
+        certificateWindow.document.write('</div>');
+        certificateWindow.document.write('</body></html>'); 
+
+        certificateWindow.document.close();
+        certificateWindow.document.focus(); 
+
+        // Add a timeout before printing
+        setTimeout(() => {
+            certificateWindow.print();
+            certificateWindow.close();
+        }, 500);
+    } 
+
+    function enterFullScreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { // Firefox
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { // IE/Edge
+            elem.msRequestFullscreen();
+        }
+    } 
+
+    function nextQuestion() {
+        if (currentQuestionIndex < totalQuestions - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+    } 
+
+    function previousQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            loadQuestion();
+        }
+    }
 </script>
-
 </body>
 </html>
